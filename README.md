@@ -1,3 +1,5 @@
+[![Build, test and publish](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml)
+
 # EVduty Custom Integration for Home Assistant
 
 Use to monitor your EVduty charging stations including charging session state, estimated cost and energy consumption.
