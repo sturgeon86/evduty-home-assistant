@@ -9,7 +9,7 @@ Use to monitor your EVduty charging stations including charging session state, e
 
 ### Automatic
 
-[![Install from Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=happydev&repository=evduty-home-assistant)
+[![Install from Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=happydev-ca&repository=evduty-home-assistant&category=integration)
 
 Or:
 
