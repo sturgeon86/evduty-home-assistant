@@ -1,4 +1,4 @@
-name: Build and test
+name: Validate
 on:
   push:
   schedule:
