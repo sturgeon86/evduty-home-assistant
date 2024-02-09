@@ -1,3 +1,4 @@
+from datetime import timedelta
 from http import HTTPStatus
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock, AsyncMock
@@ -7,10 +8,24 @@ from evdutyapi import EVDutyApi, Station, Terminal
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
-from custom_components.evduty import EVDutyCoordinator
+from custom_components.evduty import EVDutyCoordinator, DOMAIN
 
 
 class TestEVDutyCoordinator(IsolatedAsyncioTestCase):
+
+    async def test_set_coordinator_name_to_domain(self):
+        hass = Mock(HomeAssistant)
+        api = Mock(EVDutyApi)
+        coordinator = EVDutyCoordinator(hass=hass, api=api)
+
+        self.assertEqual(coordinator.name, DOMAIN)
+
+    async def test_refresh_data_every_60_seconds(self):
+        hass = Mock(HomeAssistant)
+        api = Mock(EVDutyApi)
+        coordinator = EVDutyCoordinator(hass=hass, api=api)
+
+        self.assertEqual(coordinator.update_interval, timedelta(seconds=60))
 
     async def test_get_charging_stations(self):
         hass = Mock(HomeAssistant)
