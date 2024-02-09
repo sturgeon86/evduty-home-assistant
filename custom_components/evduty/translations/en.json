@@ -2,7 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "description": "EVduty charging stations",
+        "title": "EVduty charging stations",
+        "description": "Connect to your EVduty account to access your charging stations",
         "data": {
           "username": "Email",
           "password": "Password"

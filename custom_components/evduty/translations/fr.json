@@ -2,7 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "description": "Bornes de recharge EVduty",
+        "title": "Bornes de recharge EVduty",
+        "description": "Connectez-vous à votre compte EVduty pour accéder à vos bornes de recharge",
         "data": {
           "username": "Courriel",
           "password": "Mot de passe"

@@ -18,7 +18,7 @@ script/setup
 source venv/bin/activate
 
 # create a symlink in config folder to this folder
-ln -sf ../../evduty-home-assistant/custom_components config/custom_components
+ln -s ../evduty-home-assistant/custom_components config/custom_components
 
 # run
 hass -c config

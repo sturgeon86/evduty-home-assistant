@@ -33,27 +33,21 @@ async def async_setup_entry(hass, entry, async_add_devices) -> None:
     async_add_devices(sensors)
 
 
-def formatted_name(name) -> str:
-    return f'Charging station {name}'
-
-
-def formatted_id(name) -> str:
-    return slugify(name)
-
-
 class EVDutyTerminalDevice(CoordinatorEntity):
     _attr_attribution = f'Data provided by {MANUFACTURER}'
 
-    def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
+    def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal, sensor_name: str) -> None:
         super().__init__(coordinator)
-
+        device_name = f'{MANUFACTURER} {terminal.name}'
+        self._attr_name = f'{device_name} {sensor_name}'
+        self._attr_unique_id = slugify(self._attr_name)
         self._terminal = terminal
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, terminal.id)},
             manufacturer=MANUFACTURER,
             model=terminal.charge_box_identity,
             sw_version=terminal.firmware_version,
-            name=formatted_name(terminal.name))
+            name=device_name)
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -67,9 +61,7 @@ class PowerSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_native_unit_of_measurement = UnitOfPower.WATT
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Power'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Power')
 
     @property
     def native_value(self):
@@ -82,9 +74,7 @@ class AmpSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Amp'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Amp')
 
     @property
     def native_value(self):
@@ -97,9 +87,7 @@ class VoltSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Volt'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Volt')
 
     @property
     def native_value(self):
@@ -113,9 +101,7 @@ class EnergyConsumedSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Energy consumed'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Energy consumed')
 
     @property
     def native_value(self):
@@ -127,9 +113,7 @@ class ChargingStateSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_options = ['Available', 'Charging']
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} State'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'State')
 
     @property
     def native_value(self):
@@ -142,9 +126,7 @@ class ChargingSessionStartDateSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Session Start Date'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Session Start Date')
 
     @property
     def native_value(self):
@@ -158,9 +140,7 @@ class ChargingSessionDurationSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_native_unit_of_measurement = UnitOfTime.SECONDS
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Session Duration'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Session Duration')
 
     @property
     def native_value(self):
@@ -174,9 +154,7 @@ class ChargingSessionEstimatedCostSensor(EVDutyTerminalDevice, SensorEntity):
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
-        super().__init__(coordinator, terminal)
-        self._attr_name = f'{formatted_name(terminal.name)} Session Estimated Cost'
-        self._attr_unique_id = f'{formatted_id(self._attr_name)}'
+        super().__init__(coordinator, terminal, 'Session Estimated Cost')
 
     @property
     def native_value(self):

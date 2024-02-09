@@ -121,7 +121,7 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
                                                         manufacturer=MANUFACTURER,
                                                         model=self.terminal.charge_box_identity,
                                                         sw_version=self.terminal.firmware_version,
-                                                        name='Charging station Test'))
+                                                        name='EVduty Test'))
         if state_class is not None:
             self.assertEqual(sensor._attr_state_class, state_class)
         if device_class is not None:
@@ -133,8 +133,8 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
         if options is not None:
             self.assertEqual(sensor._attr_options, options)
 
-        self.assertEqual(sensor._attr_name, f'Charging station Test {name}')
-        self.assertEqual(sensor._attr_unique_id, f'charging_station_test_{slugify(name)}')
+        self.assertEqual(sensor._attr_name, f'EVduty Test {name}')
+        self.assertEqual(sensor._attr_unique_id, f'evduty_test_{slugify(name)}')
 
         self.assertEqual(sensor.native_value, value)
 
