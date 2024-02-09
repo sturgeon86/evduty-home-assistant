@@ -1,4 +1,4 @@
-.PHONY : install test coverage
+.PHONY : install test coverage release
 
 install:
 	python3 -m venv .venv && \
@@ -12,3 +12,6 @@ test:
 coverage:
 	coverage run --branch -m unittest
 	coverage html
+
+release:
+	.github/release.sh ${bump}

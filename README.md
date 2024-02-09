@@ -1,4 +1,5 @@
 [![Build, test and publish](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml)
+[![Validate](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/validate.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/validate.yml)
 
 # EVduty Custom Integration for Home Assistant
 
@@ -11,6 +12,7 @@ Use to monitor your EVduty charging stations including charging session state, e
 [![Install from Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=happydev&repository=evduty-home-assistant)
 
 Or:
+
 - Go to your Home Assistant
 - Open HACS
 - Search for `EVduty`
@@ -44,12 +46,14 @@ A device is created for each charging station in your account. The following sen
 ## Development
 
 ### Test locally
+
 ```shell
     make install
     make test
 ```
 
 ### Run locally
+
 ```shell
 # from ha core repo, setup ha core
 script/setup
@@ -60,4 +64,10 @@ ln -s ../evduty-home-assistant/custom_components config/custom_components
 
 # run
 hass -c config
+```
+
+### Release version
+
+```shell
+make release bump=patch|minor|major
 ```
