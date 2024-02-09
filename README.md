@@ -48,8 +48,8 @@ A device is created for each charging station in your account. The following sen
 ### Test locally
 
 ```shell
-    make install
-    make test
+make install
+make test
 ```
 
 ### Run locally
