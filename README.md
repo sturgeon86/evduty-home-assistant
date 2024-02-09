@@ -1,7 +1,43 @@
-# evduty-home-assistant
-EVduty Home Assistant integration
+# EVduty Custom Integration for Home Assistant
 
+Use to monitor your EVduty charging stations including charging session state, estimated cost and energy consumption.
 
+## Installation
+
+### Automatic
+
+[![Install from Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=happydev&repository=evduty-home-assistant)
+
+Or:
+- Go to your Home Assistant
+- Open HACS
+- Search for `EVduty`
+- Click the `Download` button on the bottom right
+- Restart Home Assistant
+
+### Manual
+
+- Copy the `evduty` folder your `/path/to/home-assistant/custom_components/` directory
+- Restart Home Assistant
+
+## Configuration
+
+- Go to `Settings` -> `Devices & Services`
+- Click on the `Integrations` tab
+- Click the `Add Integration` button
+- Search for EVduty
+
+![Configuration](.img/config.png)
+
+Then click the `Submit` button. Your credentials will be validated, and your charging stations will be created in Home Assistant.
+
+*This custom integration does not support configuration through the `configuration.yaml` file.*
+
+## Sensors
+
+A device is created for each charging station in your account. The following sensors are created for each charging station:
+
+![Sensors](./.img/sensors.png)
 
 ## Development
 
