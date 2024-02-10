@@ -1,9 +1,7 @@
 import asyncio
 from datetime import timedelta
-from http import HTTPStatus
 
-from aiohttp import ClientResponseError
-from evdutyapi import EVDutyApi, Terminal
+from evdutyapi import EVDutyApi, Terminal, EVDutyApiInvalidCredentialsError, EVDutyApiError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -25,7 +23,7 @@ class EVDutyCoordinator(DataUpdateCoordinator):
             async with asyncio.timeout(10):
                 stations = await self.api.async_get_stations()
                 return {terminal.id: terminal for station in stations for terminal in station.terminals}
-        except ClientResponseError as error:
-            if error.status == HTTPStatus.FORBIDDEN or error.status == HTTPStatus.UNAUTHORIZED:
-                raise ConfigEntryAuthFailed from error
+        except EVDutyApiInvalidCredentialsError as error:
+            raise ConfigEntryAuthFailed from error
+        except EVDutyApiError as error:
             raise ConnectionError from error

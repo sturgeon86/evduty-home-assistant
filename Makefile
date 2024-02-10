@@ -12,6 +12,7 @@ test:
 coverage:
 	coverage run --branch -m unittest
 	coverage html
+	open htmlcov/index.html
 
 release:
 	.github/release.sh ${bump}

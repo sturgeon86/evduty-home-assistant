@@ -3,8 +3,8 @@ from http import HTTPStatus
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock, AsyncMock
 
-from aiohttp import ClientResponseError, RequestInfo
-from evdutyapi import EVDutyApi, Station, Terminal
+from aiohttp import RequestInfo
+from evdutyapi import EVDutyApi, Station, Terminal, EVDutyApiInvalidCredentialsError, EVDutyApiError
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
@@ -42,32 +42,22 @@ class TestEVDutyCoordinator(IsolatedAsyncioTestCase):
 
         self.assertEqual(terminals, {"123": terminal})
 
-    async def test_raise_on_forbidden(self):
+    async def test_triggers_a_reauth_on_invalid_credentials_error(self):
         hass = Mock(HomeAssistant)
         api = Mock(EVDutyApi)
         coordinator = EVDutyCoordinator(hass=hass, api=api)
 
-        api.async_get_stations.side_effect = ClientResponseError(status=HTTPStatus.FORBIDDEN, request_info=Mock(RequestInfo), history=())
+        api.async_get_stations.side_effect = EVDutyApiInvalidCredentialsError(status=HTTPStatus.UNAUTHORIZED, request_info=Mock(RequestInfo), history=())
 
         with self.assertRaises(ConfigEntryAuthFailed):
             await coordinator._async_update_data()
 
-    async def test_raise_on_unauthorized(self):
+    async def test_raise_on_other_api_error(self):
         hass = Mock(HomeAssistant)
         api = Mock(EVDutyApi)
         coordinator = EVDutyCoordinator(hass=hass, api=api)
 
-        api.async_get_stations.side_effect = ClientResponseError(status=HTTPStatus.UNAUTHORIZED, request_info=Mock(RequestInfo), history=())
-
-        with self.assertRaises(ConfigEntryAuthFailed):
-            await coordinator._async_update_data()
-
-    async def test_raise_on_other_error(self):
-        hass = Mock(HomeAssistant)
-        api = Mock(EVDutyApi)
-        coordinator = EVDutyCoordinator(hass=hass, api=api)
-
-        api.async_get_stations.side_effect = ClientResponseError(status=HTTPStatus.BAD_REQUEST, request_info=Mock(RequestInfo), history=())
+        api.async_get_stations.side_effect = EVDutyApiError(status=HTTPStatus.BAD_REQUEST, request_info=Mock(RequestInfo), history=())
 
         with self.assertRaises(ConnectionError):
             await coordinator._async_update_data()

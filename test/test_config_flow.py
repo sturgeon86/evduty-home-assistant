@@ -2,7 +2,8 @@ from http import HTTPStatus
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, patch, Mock, MagicMock
 
-from aiohttp import ClientResponseError, RequestInfo, ClientSession
+from aiohttp import RequestInfo, ClientSession
+from evdutyapi import EVDutyApiInvalidCredentialsError
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntries
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
@@ -45,9 +46,7 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
         # entry setup called
         async_setup_entry.assert_called_once()
 
-    @patch('custom_components.evduty.config_flow.EVDutyApi')
-    @patch('custom_components.evduty.async_setup_entry')
-    async def test_form_incomplete(self, async_setup_entry, evduty_api_constructor):
+    async def test_form_incomplete(self):
         hass = self.hass_setup()
 
         result = await hass.config_entries.flow.async_init(DOMAIN, context={'source': config_entries.SOURCE_USER})
@@ -88,7 +87,7 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
         if auth_success:
             evduty_api.async_authenticate.return_value = True
         else:
-            evduty_api.async_authenticate.side_effect = ClientResponseError(status=HTTPStatus.BAD_REQUEST, request_info=Mock(RequestInfo), history=())
+            evduty_api.async_authenticate.side_effect = EVDutyApiInvalidCredentialsError(status=HTTPStatus.BAD_REQUEST, request_info=Mock(RequestInfo), history=())
 
         evduty_api.async_get_stations = AsyncMock(return_value=[])
 
