@@ -26,6 +26,6 @@ class EVDutyCoordinator(DataUpdateCoordinator):
                 stations = await self.api.async_get_stations()
                 return {terminal.id: terminal for station in stations for terminal in station.terminals}
         except ClientResponseError as error:
-            if error.status == HTTPStatus.FORBIDDEN:
+            if error.status == HTTPStatus.FORBIDDEN or error.status == HTTPStatus.UNAUTHORIZED:
                 raise ConfigEntryAuthFailed from error
             raise ConnectionError from error

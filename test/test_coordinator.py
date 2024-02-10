@@ -42,12 +42,22 @@ class TestEVDutyCoordinator(IsolatedAsyncioTestCase):
 
         self.assertEqual(terminals, {"123": terminal})
 
-    async def test_raise_on_auth_failed(self):
+    async def test_raise_on_forbidden(self):
         hass = Mock(HomeAssistant)
         api = Mock(EVDutyApi)
         coordinator = EVDutyCoordinator(hass=hass, api=api)
 
         api.async_get_stations.side_effect = ClientResponseError(status=HTTPStatus.FORBIDDEN, request_info=Mock(RequestInfo), history=())
+
+        with self.assertRaises(ConfigEntryAuthFailed):
+            await coordinator._async_update_data()
+
+    async def test_raise_on_unauthorized(self):
+        hass = Mock(HomeAssistant)
+        api = Mock(EVDutyApi)
+        coordinator = EVDutyCoordinator(hass=hass, api=api)
+
+        api.async_get_stations.side_effect = ClientResponseError(status=HTTPStatus.UNAUTHORIZED, request_info=Mock(RequestInfo), history=())
 
         with self.assertRaises(ConfigEntryAuthFailed):
             await coordinator._async_update_data()
