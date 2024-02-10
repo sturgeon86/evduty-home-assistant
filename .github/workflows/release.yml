@@ -1,9 +1,9 @@
 name: "Release"
 
 on:
-  release:
-    types:
-      - "published"
+  push:
+    tags:
+      - '*'
 
 permissions: {}
 
@@ -14,16 +14,16 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: "Checkout the repository"
-        uses: "actions/checkout@v4.1.0"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: "zip the integration directory"
+      - name: Zip the integration directory
         shell: "bash"
         run: |
           cd "${{ github.workspace }}/custom_components/evduty"
           zip evduty.zip -r ./
 
-      - name: "Upload the zip file to the release"
-        uses: softprops/action-gh-release@v0.1.15
+      - name: Upload the zip file to the release
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ github.workspace }}/custom_components/evduty/evduty.zip
