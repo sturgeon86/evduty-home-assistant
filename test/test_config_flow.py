@@ -36,7 +36,7 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
         # check results
         self.assertEqual(result['version'], 1)
         self.assertEqual(result['type'], FlowResultType.CREATE_ENTRY)
-        self.assertEqual(result['context'], {'source': 'user'})
+        self.assertEqual(result['context'], {'source': 'user', 'unique_id': 'test-username'})
         self.assertEqual(result['title'], 'test-username')
         self.assertEqual(result['data'], {CONF_USERNAME: 'test-username', CONF_PASSWORD: 'test-password'})
 
