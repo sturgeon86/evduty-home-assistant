@@ -25,19 +25,29 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 class EVDutyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
-    async def async_step_user(self, data: dict[str, Any] | None = None) -> FlowResult:
+    def __init__(self) -> None:
+        self._reauth_entry: config_entries.ConfigEntry | None = None
 
+    async def async_step_user(self, data: dict[str, Any] | None = None) -> FlowResult:
         if data is None:
             return self.async_show_form(step_id='user', data_schema=STEP_USER_DATA_SCHEMA)
 
-        await self.async_set_unique_id(data[CONF_USERNAME])
-        self._abort_if_unique_id_configured()
+        if self._reauth_entry is None:
+            await self.async_set_unique_id(data[CONF_USERNAME])
+            self._abort_if_unique_id_configured()
 
         errors: dict[str, str] = {}
         try:
             evduty_api = EVDutyApi(data[CONF_USERNAME], data[CONF_PASSWORD], async_create_clientsession(self.hass))
             await evduty_api.async_authenticate()
-            return self.async_create_entry(title=data[CONF_USERNAME], data=data)
+
+            if self._reauth_entry is None:
+                return self.async_create_entry(title=data[CONF_USERNAME], data=data)
+            else:
+                self.hass.config_entries.async_update_entry(self._reauth_entry, data=data)
+                await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+
         except EVDutyApiInvalidCredentialsError:
             errors['base'] = 'invalid_auth'
         except EVDutyApiError:
@@ -47,3 +57,7 @@ class EVDutyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors['base'] = 'unknown'
 
         return self.async_show_form(step_id='user', data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
+
+    async def async_step_reauth(self, data: dict[str, Any] | None = None) -> FlowResult:
+        self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        return await self.async_step_user(data)

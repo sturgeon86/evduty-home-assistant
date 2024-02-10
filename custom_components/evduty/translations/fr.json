@@ -5,13 +5,13 @@
         "title": "Bornes de recharge EVduty",
         "description": "Connectez-vous à votre compte EVduty pour accéder à vos bornes de recharge",
         "data": {
-          "username": "Courriel",
           "password": "Mot de passe"
         }
       }
     },
     "abort": {
-      "already_configured": "Compte EVduty déjà configuré"
+      "already_configured": "Compte EVduty déjà configuré",
+      "reauth_successful": "Réauthentification réussie"
     },
     "error": {
       "cannot_connect": "Échec de connexion",

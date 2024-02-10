@@ -20,7 +20,7 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
     @patch('custom_components.evduty.config_flow.async_create_clientsession')
     async def test_form_authentication_success(self, async_create_clientsession_constructor, async_setup_entry, evduty_api_constructor):
         evduty_api = self.evduty_api_mock(evduty_api_constructor)
-        self.async_create_client_session_mock(async_create_clientsession_constructor)
+        async_create_clientsession = self.async_create_client_session_mock(async_create_clientsession_constructor)
         async_setup_entry.return_value = True
         hass = self.hass_setup()
 
@@ -41,7 +41,8 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
         self.assertEqual(result['data'], {CONF_USERNAME: 'test-username', CONF_PASSWORD: 'test-password'})
 
         # api auth called
-        evduty_api.async_authenticate.assert_called_once()
+        evduty_api_constructor.assert_called_once_with('test-username', 'test-password', async_create_clientsession)
+        evduty_api.async_authenticate.assert_called_once_with()
 
         # entry setup called
         async_setup_entry.assert_called_once()
@@ -70,6 +71,25 @@ class ConfigFlowTest(IsolatedAsyncioTestCase):
         # show form with error
         self.assertEqual(result['type'], FlowResultType.FORM)
         self.assertEqual(result['errors'], {"base": "invalid_auth"})
+
+    @patch('custom_components.evduty.config_flow.EVDutyApi')
+    @patch('custom_components.evduty.async_setup_entry')
+    @patch('custom_components.evduty.config_flow.async_create_clientsession')
+    async def test_form_re_authentication_success(self, async_create_clientsession_constructor, async_setup_entry, evduty_api_constructor):
+        evduty_api = self.evduty_api_mock(evduty_api_constructor)
+        async_create_clientsession = self.async_create_client_session_mock(async_create_clientsession_constructor)
+        async_setup_entry.return_value = True
+        hass = self.hass_setup()
+
+        result = await hass.config_entries.flow.async_init(DOMAIN, context={'source': config_entries.SOURCE_REAUTH, 'entry_id': 'id'})
+        result = await hass.config_entries.flow.async_configure(result['flow_id'], {CONF_USERNAME: 'test-username', CONF_PASSWORD: 'test-password-new'})
+        await hass.async_block_till_done()
+
+        evduty_api_constructor.assert_called_once_with('test-username', 'test-password-new', async_create_clientsession)
+        evduty_api.async_authenticate.assert_called_once()
+
+        self.assertEqual(result['type'], FlowResultType.CREATE_ENTRY)
+        self.assertEqual(result['context'], {'source': 'reauth', 'entry_id': 'id', 'unique_id': 'test-username'})
 
     @staticmethod
     def hass_setup():
