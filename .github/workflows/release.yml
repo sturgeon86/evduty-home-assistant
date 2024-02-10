@@ -27,3 +27,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ github.workspace }}/custom_components/evduty/evduty.zip
+          generate_release_notes: true
