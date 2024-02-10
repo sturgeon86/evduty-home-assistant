@@ -47,10 +47,23 @@ class TestEVDutyCoordinator(IsolatedAsyncioTestCase):
         api = Mock(EVDutyApi)
         coordinator = EVDutyCoordinator(hass=hass, api=api)
 
-        api.async_get_stations.side_effect = EVDutyApiInvalidCredentialsError(status=HTTPStatus.UNAUTHORIZED, request_info=Mock(RequestInfo), history=())
+        api.async_get_stations.side_effect = EVDutyApiInvalidCredentialsError(status=HTTPStatus.BAD_REQUEST, request_info=Mock(RequestInfo), history=())
 
         with self.assertRaises(ConfigEntryAuthFailed):
             await coordinator._async_update_data()
+
+    async def test_returns_last_data_on_simultaneous_evduty_account_usage(self):
+        hass = Mock(HomeAssistant)
+        api = Mock(EVDutyApi)
+        coordinator = EVDutyCoordinator(hass=hass, api=api)
+        previous_data = {"123": 'anything'}
+        coordinator.data = previous_data
+
+        api.async_get_stations.side_effect = EVDutyApiError(status=HTTPStatus.UNAUTHORIZED, request_info=Mock(RequestInfo), history=())
+
+        terminals = await coordinator._async_update_data()
+
+        self.assertEqual(terminals, previous_data)
 
     async def test_raise_on_other_api_error(self):
         hass = Mock(HomeAssistant)

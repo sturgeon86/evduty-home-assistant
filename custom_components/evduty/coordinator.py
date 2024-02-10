@@ -1,5 +1,6 @@
 import asyncio
 from datetime import timedelta
+from http import HTTPStatus
 
 from evdutyapi import EVDutyApi, Terminal, EVDutyApiInvalidCredentialsError, EVDutyApiError
 from homeassistant.config_entries import ConfigEntry
@@ -26,4 +27,8 @@ class EVDutyCoordinator(DataUpdateCoordinator):
         except EVDutyApiInvalidCredentialsError as error:
             raise ConfigEntryAuthFailed from error
         except EVDutyApiError as error:
-            raise ConnectionError from error
+            if error.status == HTTPStatus.UNAUTHORIZED:
+                LOGGER.debug(f'Simultaneous EVduty account usage. Returning last data: {self.data}')
+                return self.data
+            else:
+                raise ConnectionError from error
