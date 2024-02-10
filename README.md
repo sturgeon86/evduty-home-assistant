@@ -1,4 +1,4 @@
-[![Build, test and publish](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/publish.yml)
+[![Test](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/test.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/test.yml)
 [![Validate](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/validate.yml/badge.svg)](https://github.com/happydev-ca/evduty-home-assistant/actions/workflows/validate.yml)
 
 # EVduty Custom Integration for Home Assistant
