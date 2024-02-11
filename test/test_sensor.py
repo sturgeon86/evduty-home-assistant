@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
 
-from evdutyapi import Terminal, ChargingStatus, ChargingSession
+from evdutyapi import Terminal, ChargingStatus, ChargingSession, NetworkInfo
 from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
-from homeassistant.const import UnitOfPower, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfTime
+from homeassistant.const import UnitOfPower, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfTime, EntityCategory, SIGNAL_STRENGTH_DECIBELS_MILLIWATT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -13,7 +13,7 @@ from homeassistant.util import slugify
 from custom_components.evduty import DOMAIN
 from custom_components.evduty.const import MANUFACTURER
 from custom_components.evduty.sensor import async_setup_entry, PowerSensor, AmpSensor, VoltSensor, EnergyConsumedSensor, ChargingStateSensor, ChargingSessionStartDateSensor, \
-    ChargingSessionDurationSensor, ChargingSessionEstimatedCostSensor
+    ChargingSessionDurationSensor, ChargingSessionEstimatedCostSensor, WifiSsidSensor, WifiRssiSensor, WifiIpSensor
 
 
 class TestSensorCreation(IsolatedAsyncioTestCase):
@@ -35,7 +35,8 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
                                                          energy_consumed=2000,
                                                          start_date=datetime.now(),
                                                          duration=timedelta(seconds=55),
-                                                         cost=0.32))
+                                                         cost=0.32),
+                                 network_info=NetworkInfo(wifi_ssid="ssid", wifi_rssi=-72, ip_address="ip", mac_address="mac"))
         self.coordinator.data = {'123': self.terminal}
         hass = Mock(HomeAssistant)
         hass.data = {DOMAIN: {entry.entry_id: self.coordinator}}
@@ -49,7 +50,7 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
         self.sensors = async_add_devices.call_args.args[0]
 
     async def test_add_sensors_on_setup(self):
-        self.assertEqual(len(self.sensors), 8)
+        self.assertEqual(len(self.sensors), 11)
 
     def test_power_sensor_created(self):
         self.assert_sensor_created(type=PowerSensor,
@@ -91,13 +92,13 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
                                    options=['Available', 'Charging'],
                                    value='Charging')
 
-    def test_charging_session_start_date_created(self):
+    def test_charging_session_start_date_sensor_created(self):
         self.assert_sensor_created(type=ChargingSessionStartDateSensor,
                                    name='Session Start Date',
                                    device_class=SensorDeviceClass.TIMESTAMP,
                                    value=self.terminal.session.start_date)
 
-    def test_charging_session_duration_created(self):
+    def test_charging_session_duration_sensor_created(self):
         self.assert_sensor_created(type=ChargingSessionDurationSensor,
                                    name='Session Duration',
                                    device_class=SensorDeviceClass.DURATION,
@@ -113,7 +114,28 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
                                    precision=2,
                                    value=0.32)
 
-    def assert_sensor_created(self, type, name, state_class=None, device_class=None, unit=None, precision=None, options=None, value=None):
+    def test_wifi_ip_sensor_created(self):
+        self.assert_sensor_created(type=WifiIpSensor,
+                                   name='Wi-Fi IP',
+                                   entity_category=EntityCategory.DIAGNOSTIC,
+                                   value="ip")
+
+    def test_wifi_ssid_sensor_created(self):
+        self.assert_sensor_created(type=WifiSsidSensor,
+                                   name='Wi-Fi SSID',
+                                   entity_category=EntityCategory.DIAGNOSTIC,
+                                   value="ssid")
+
+    def test_wifi_rssi_sensor_created(self):
+        self.assert_sensor_created(type=WifiRssiSensor,
+                                   name='Wi-Fi Signal Strength',
+                                   entity_category=EntityCategory.DIAGNOSTIC,
+                                   state_class=SensorStateClass.MEASUREMENT,
+                                   device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+                                   unit=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+                                   value=-72)
+
+    def assert_sensor_created(self, type, name, state_class=None, device_class=None, unit=None, precision=None, options=None, value=None, entity_category=None):
         sensor = next(s for s in self.sensors if isinstance(s, type))
         self.assertEqual(sensor.coordinator, self.coordinator)
         self.assertEqual(sensor._terminal, self.terminal)
@@ -121,6 +143,7 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
                                                         manufacturer=MANUFACTURER,
                                                         model=self.terminal.charge_box_identity,
                                                         sw_version=self.terminal.firmware_version,
+                                                        connections={('mac', 'mac')},
                                                         name='EVduty Test'))
         if state_class is not None:
             self.assertEqual(sensor._attr_state_class, state_class)
@@ -132,9 +155,10 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
             self.assertEqual(sensor._attr_suggested_display_precision, precision)
         if options is not None:
             self.assertEqual(sensor._attr_options, options)
+        if entity_category is not None:
+            self.assertEqual(sensor._attr_entity_category, entity_category)
 
         self.assertEqual(sensor._attr_name, f'EVduty Test {name}')
         self.assertEqual(sensor._attr_unique_id, f'evduty_test_{slugify(name)}')
 
         self.assertEqual(sensor.native_value, value)
-

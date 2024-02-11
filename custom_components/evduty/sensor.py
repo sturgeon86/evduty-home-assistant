@@ -4,8 +4,9 @@ EVduty charging stations terminal device and sensors
 from datetime import datetime
 
 from evdutyapi import Terminal, ChargingStatus
-from homeassistant.const import UnitOfPower, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfTime
+from homeassistant.const import UnitOfPower, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfTime, EntityCategory, SIGNAL_STRENGTH_DECIBELS_MILLIWATT
 from homeassistant.core import callback
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -29,6 +30,9 @@ async def async_setup_entry(hass, entry, async_add_devices) -> None:
         sensors.append(ChargingSessionStartDateSensor(coordinator, terminal))
         sensors.append(ChargingSessionDurationSensor(coordinator, terminal))
         sensors.append(ChargingSessionEstimatedCostSensor(coordinator, terminal))
+        sensors.append(WifiIpSensor(coordinator, terminal))
+        sensors.append(WifiSsidSensor(coordinator, terminal))
+        sensors.append(WifiRssiSensor(coordinator, terminal))
 
     async_add_devices(sensors)
 
@@ -47,6 +51,7 @@ class EVDutyTerminalDevice(CoordinatorEntity):
             manufacturer=MANUFACTURER,
             model=terminal.charge_box_identity,
             sw_version=terminal.firmware_version,
+            connections={(CONNECTION_NETWORK_MAC, terminal.network_info.mac_address)},
             name=device_name)
 
     @callback
@@ -159,3 +164,40 @@ class ChargingSessionEstimatedCostSensor(EVDutyTerminalDevice, SensorEntity):
     @property
     def native_value(self):
         return self._terminal.session.cost
+
+
+class WifiIpSensor(EVDutyTerminalDevice, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
+        LOGGER.info('Wi-Fi IP')
+        super().__init__(coordinator, terminal, 'Wi-Fi IP')
+
+    @property
+    def native_value(self):
+        return self._terminal.network_info.ip_address
+
+
+class WifiSsidSensor(EVDutyTerminalDevice, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
+        super().__init__(coordinator, terminal, 'Wi-Fi SSID')
+
+    @property
+    def native_value(self):
+        return self._terminal.network_info.wifi_ssid
+
+
+class WifiRssiSensor(EVDutyTerminalDevice, SensorEntity):
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS_MILLIWATT
+
+    def __init__(self, coordinator: EVDutyCoordinator, terminal: Terminal) -> None:
+        super().__init__(coordinator, terminal, 'Wi-Fi Signal Strength')
+
+    @property
+    def native_value(self):
+        return self._terminal.network_info.wifi_rssi

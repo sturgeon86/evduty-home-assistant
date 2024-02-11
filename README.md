@@ -39,9 +39,15 @@ Then click the `Submit` button. Your credentials will be validated, and your cha
 
 ## Sensors
 
-A device is created for each charging station in your account. The following sensors are created for each charging station:
+A device is created for each charging station in your account. 
+
+![Device](./.img/device.png)
+
+The following sensors are created for each charging station:
 
 ![Sensors](./.img/sensors.png)
+
+![Diagnostic](./.img/diagnostic.png)
 
 ## Development
 
@@ -59,8 +65,9 @@ make test
 script/setup
 source venv/bin/activate
 
-# create a symlink in config folder to this folder
-ln -s ../evduty-home-assistant/custom_components config/custom_components
+# create a symlink in config/custom_component folder to this folder
+cd config/custom_components
+ln -s ../../../evduty-home-assistant/custom_components/evduty .
 
 # run
 hass -c config
