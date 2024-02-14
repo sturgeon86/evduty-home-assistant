@@ -79,7 +79,7 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
     def test_energy_consumed_sensor_created(self):
         self.assert_sensor_created(type=EnergyConsumedSensor,
                                    name='Energy Consumed',
-                                   state_class=SensorStateClass.TOTAL,
+                                   state_class=SensorStateClass.TOTAL_INCREASING,
                                    device_class=SensorDeviceClass.ENERGY,
                                    unit=UnitOfEnergy.KILO_WATT_HOUR,
                                    precision=1,
@@ -108,7 +108,7 @@ class TestSensorCreation(IsolatedAsyncioTestCase):
     def test_estimated_cost_sensor_created(self):
         self.assert_sensor_created(type=ChargingSessionEstimatedCostSensor,
                                    name='Session Estimated Cost',
-                                   state_class=SensorStateClass.TOTAL,
+                                   state_class=SensorStateClass.TOTAL_INCREASING,
                                    device_class=SensorDeviceClass.MONETARY,
                                    unit='$',
                                    precision=2,

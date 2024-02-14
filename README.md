@@ -14,7 +14,7 @@ Use to monitor your EVduty charging stations including charging session state, e
 Or:
 
 - Go to your Home Assistant
-- Open HACS
+- Open [HACS](https://hacs.xyz/)
 - Search for `EVduty`
 - Click the `Download` button on the bottom right
 - Restart Home Assistant
