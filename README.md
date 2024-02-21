@@ -49,6 +49,23 @@ The following sensors are created for each charging station:
 
 ![Diagnostic](./.img/diagnostic.png)
 
+## Statistics
+
+The energy consumed and the estimated cost sensors can be used in statistics.
+
+![Stats](./.img/stats.png)
+
+```yaml
+- type: statistic
+  entity: sensor.evduty_your-station_session_estimated_cost
+  period:
+    calendar:
+      period: year
+  stat_type: change
+  name: Annual Cost
+  icon: mdi:ev-station
+```
+
 ## Development
 
 ### Test locally
