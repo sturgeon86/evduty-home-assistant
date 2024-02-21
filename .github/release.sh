@@ -21,7 +21,7 @@ apply_bump() {
 }
 
 change_manifest() {
-  sed -i '' "s/${1}/${2}/g" custom_components/evduty/manifest.json
+  sed -i '' "s/\"version\": \"${1}\"/\"version\": \"${2}\"/g" custom_components/evduty/manifest.json
 }
 
 git_tag () {
