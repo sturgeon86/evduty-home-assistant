@@ -124,6 +124,8 @@ class ChargingStateSensor(EVDutyTerminalDevice, SensorEntity):
     def native_value(self):
         if self._terminal.status == ChargingStatus.in_use:
             return 'Charging'
+		elif self._terminal.status == ChargingStatus.out_of_service:
+            return 'Offline'
         return 'Available'
 
 
